@@ -25,6 +25,15 @@ class State {
     }
 
     public String getNextVariable() {
+//        DEGREE HEURISTIC CASE
+//        if (this.f == 0) return "f";
+//        if (this.h == 0) return "h";
+//        if (this.c == 0) return "c";
+//        if (this.d == 0) return "d";
+//        if (this.g == 0) return "g";
+//        if (this.e == 0) return "e";
+//        if (this.a == 0) return "a";
+//        if (this.b == 0) return "b";
         if (this.a == 0) return "a";
         if (this.b == 0) return "b";
         if (this.c == 0) return "c";
@@ -34,6 +43,18 @@ class State {
         if (this.g == 0) return "g";
         if (this.h == 0) return "h";
         return "none";
+    }
+
+    public boolean checkValid() {
+        if (this.a == 0) return false;
+        if (this.b == 0) return false;
+        if (this.c == 0) return false;
+        if (this.d == 0) return false;
+        if (this.e == 0) return false;
+        if (this.f == 0) return false;
+        if (this.g == 0) return false;
+        if (this.h == 0) return false;
+        return true;
     }
 
     @Override
@@ -51,6 +72,7 @@ class State {
     }
 }
 public class Main {
+    public static int failingBranches = 0;
     public static void main(String[] args) {
         State start = new State(0, 0, 0, 0, 0, 0, 0, 0);
         List<State> solutions = search(start);
@@ -63,7 +85,6 @@ public class Main {
 
     public static List<State> search(State start) {
         List<State> solutions = new ArrayList<>();
-        int failingBranches = 0;
         Stack<State> frontier = new Stack<State>();
         frontier.push(start);
         while(!frontier.empty()) {
@@ -75,7 +96,6 @@ public class Main {
                 solutions.add(current);
             } else {
                 out += " failure";
-                failingBranches++;
             }
             System.out.println(out);
             successorFunction(current, frontier, current.getNextVariable());
@@ -85,6 +105,7 @@ public class Main {
     }
 
     public static boolean checkSolution(State state) {
+        if (!state.checkValid()) return false;
         if (state.a <= state.g) return false;
         if (state.a > state.h) return false;
         if (Math.abs(state.f - state.b) != 1) return false;
@@ -137,6 +158,43 @@ public class Main {
         return true;
     }
 
+//    DEGREE HEURISTIC CASE
+//    public static boolean checkConstraint(State state, String nextVar) {
+//        if (nextVar.equals("h")) {
+//            if (state.h == state.f) return false;
+//            return true;
+//        } else if (nextVar.equals("c")) {
+//            if (Math.abs(state.h - state.c) % 2 == 1) return false;
+//            if (state.c == state.f) return false;
+//            return true;
+//        } else if (nextVar.equals("d")) {
+//            if (state.h == state.d) return false;
+//            if (state.d == state.c) return false;
+//            if (state.d == (state.f - 1)) return false;
+//            return true;
+//        } else if (nextVar.equals("g")) {
+//            if (state.g >= state.h) return false;
+//            if (Math.abs(state.g - state.c) != 1) return false;
+//            if (state.d < state.g) return false;
+//            if (state.g == state.f) return false;
+//            return true;
+//        } else if (nextVar.equals("e")) {
+//            if (state.e == state.c) return false;
+//            if (state.e >= (state.d - 1)) return false;
+//            if (state.e == (state.h - 2)) return false;
+//            if (Math.abs(state.e - state.f) % 2 == 0) return false;
+//            return true;
+//        } else if (nextVar.equals("a")) {
+//            if (state.a <= state.g) return false;
+//            if (state.a > state.h) return false;
+//            return true;
+//        } else if (nextVar.equals("b")) {
+//            if (Math.abs(state.f - state.b) != 1) return false;
+//            return true;
+//        }
+//        return true;
+//    }
+
     public static void successorFunction(State state, Stack<State> frontier, String nextVar) {
         if (nextVar.equals("none")) {
             return;
@@ -156,6 +214,8 @@ public class Main {
             }
             if (checkConstraint(next, state.getNextVariable())) {
                 frontier.push(next);
+            } else {
+                failingBranches++;
             }
         }
     }
